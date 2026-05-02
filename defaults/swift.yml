@@ -1,0 +1,9 @@
+# Swift project defaults — override any key in .github/wendy-template.yml
+swift_versions:
+  - "6.1"
+  - "6.2"
+platforms:
+  - ubuntu-latest
+  - macos-latest
+enable_tests: true
+nightly: false

@@ -1,0 +1,4 @@
+# Go project defaults — override any key in .github/wendy-template.yml
+# go_version is intentionally absent: version is read from go.mod at CI time.
+docker: false
+nightly: false

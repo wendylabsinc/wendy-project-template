@@ -1,0 +1,6 @@
+# ESP32 firmware project defaults
+targets:
+  - esp32c5
+  - esp32c6
+idf_version: "v5.5.1"
+nightly: false

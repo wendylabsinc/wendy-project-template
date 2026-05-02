@@ -1,0 +1,3 @@
+# Rust project defaults
+rust_channel: stable
+nightly: false

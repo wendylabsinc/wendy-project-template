@@ -1,0 +1,3 @@
+# Node/TypeScript project defaults
+node_version: "20"
+nightly: false
