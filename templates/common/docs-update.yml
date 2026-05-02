@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      pull-requests: read
     steps:
       - name: Get PR diff
         env:
@@ -33,7 +34,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install Anthropic SDK
-        run: pip install --quiet anthropic
+        run: pip install --quiet anthropic==0.97.0
 
       - name: Update docs with Claude
         env:
@@ -114,15 +115,19 @@ jobs:
               }],
           )
 
+          docs_root = pathlib.Path('docs').resolve()
           updated = 0
           for match in re.finditer(
               r'<file path="([^"]+)">(.*?)</file>',
               message.content[0].text,
               re.DOTALL,
           ):
-              fpath = pathlib.Path(match.group(1))
+              fpath = (docs_root / match.group(1)).resolve()
+              if not str(fpath).startswith(str(docs_root) + '/'):
+                  print(f'Skipping unsafe path: {match.group(1)}')
+                  continue
               fpath.write_text(match.group(2).strip() + '\n')
-              print(f'Updated: {fpath}')
+              print(f'Updated: {fpath.relative_to(docs_root)}')
               updated += 1
 
           if updated == 0:
