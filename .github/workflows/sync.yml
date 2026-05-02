@@ -1,0 +1,95 @@
+name: Sync Templates
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  discover:
+    name: Discover opted-in repos
+    runs-on: ubuntu-latest
+    outputs:
+      repos: ${{ steps.discover.outputs.repos }}
+    steps:
+      - name: Find repos with wendy-template.yml
+        id: discover
+        env:
+          GH_TOKEN: ${{ secrets.WENDY_TEMPLATE_SYNC_TOKEN }}
+        run: |
+          set -euo pipefail
+          ORG="wendy-sh"
+
+          repos=$(
+            gh api "orgs/${ORG}/repos" \
+              --paginate \
+              --jq '.[].name' \
+            | while IFS= read -r repo; do
+                if gh api "repos/${ORG}/${repo}/contents/.github/wendy-template.yml" \
+                    --silent > /dev/null 2>&1; then
+                  echo "$repo"
+                fi
+              done \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))'
+          )
+
+          echo "Discovered repos: $repos"
+          echo "repos=${repos}" >> "$GITHUB_OUTPUT"
+
+  sync:
+    name: Sync ${{ matrix.repo }}
+    needs: discover
+    if: needs.discover.outputs.repos != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        repo: ${{ fromJson(needs.discover.outputs.repos) }}
+    steps:
+      - name: Check out template repo
+        uses: actions/checkout@v4
+        with:
+          path: wendy-project-template
+
+      - name: Check out target repo
+        uses: actions/checkout@v4
+        with:
+          repository: wendy-sh/${{ matrix.repo }}
+          token: ${{ secrets.WENDY_TEMPLATE_SYNC_TOKEN }}
+          path: ${{ matrix.repo }}
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq \
+            https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Apply templates
+        run: |
+          bash wendy-project-template/scripts/apply-template.sh \
+            "${{ matrix.repo }}"
+
+      - name: Capture triggering commit
+        id: commit
+        run: |
+          cd wendy-project-template
+          {
+            echo 'MESSAGE<<EOF'
+            git log -1 --pretty=medium
+            echo EOF
+          } >> "$GITHUB_ENV"
+
+      - name: Open or update PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.WENDY_TEMPLATE_SYNC_TOKEN }}
+          path: ${{ matrix.repo }}
+          branch: wendy-template-update
+          title: 'chore: sync from wendy-project-template'
+          body: |
+            ${{ env.MESSAGE }}
+
+            ---
+            Automated sync from https://github.com/wendy-sh/wendy-project-template @ `${{ github.sha }}`
+          commit-message: 'chore: sync from wendy-project-template ${{ github.sha }}'
+          base: main
