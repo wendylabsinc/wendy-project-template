@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build-and-test:
+    name: Swift ${{ matrix.swift-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+        swift-version:
+          - "6.1"
+          - "6.2"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: SwiftyLab/setup-swift@v1
+        with:
+          swift-version: ${{ matrix.swift-version }}
+      - name: Build
+        run: swift build -c release
+      - name: Test
+        run: swift test
