@@ -47,6 +47,12 @@ teardown() {
     [ -f "$TARGET/.github/workflows/docs-update.yml" ]
 }
 
+@test "swift: copies security-review.yml" {
+    printf 'type: swift\n' > "$TARGET/.github/wendy-template.yml"
+    bash "$SCRIPT" "$TARGET"
+    [ -f "$TARGET/.github/workflows/security-review.yml" ]
+}
+
 @test "swift: copies security-scan.yml" {
     printf 'type: swift\n' > "$TARGET/.github/wendy-template.yml"
     bash "$SCRIPT" "$TARGET"

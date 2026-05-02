@@ -46,9 +46,11 @@ copy_type_templates() {
     done
 }
 
-# Copy docs-update (common to all types)
+# Copy common workflows (applied to all project types)
 cp "$TEMPLATE_ROOT/templates/common/docs-update.yml" \
     "$TARGET/.github/workflows/docs-update.yml"
+cp "$TEMPLATE_ROOT/templates/common/security-review.yml" \
+    "$TARGET/.github/workflows/security-review.yml"
 
 # ── Per-type logic ────────────────────────────────────────────────────────────
 

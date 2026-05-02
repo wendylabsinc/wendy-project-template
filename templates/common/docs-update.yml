@@ -145,3 +145,4 @@ jobs:
             Automated docs update triggered by ${{ github.repository }}#${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}
           commit-message: "docs: sync from ${{ github.repository }}#${{ github.event.pull_request.number }}"
           base: main
+          reviewers: ${{ github.event.pull_request.user.login }}
