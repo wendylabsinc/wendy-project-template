@@ -18,7 +18,7 @@ jobs:
           GH_TOKEN: ${{ secrets.WENDY_TEMPLATE_SYNC_TOKEN }}
         run: |
           set -euo pipefail
-          ORG="wendy-sh"
+          ORG="wendylabsinc"
 
           repos=$(
             gh api "orgs/${ORG}/repos" \
@@ -54,7 +54,7 @@ jobs:
       - name: Check out target repo
         uses: actions/checkout@v4
         with:
-          repository: wendy-sh/${{ matrix.repo }}
+          repository: wendylabsinc/${{ matrix.repo }}
           token: ${{ secrets.WENDY_TEMPLATE_SYNC_TOKEN }}
           path: ${{ matrix.repo }}
 
@@ -90,6 +90,6 @@ jobs:
             ${{ env.MESSAGE }}
 
             ---
-            Automated sync from https://github.com/wendy-sh/wendy-project-template @ `${{ github.sha }}`
+            Automated sync from https://github.com/wendylabsinc/wendy-project-template @ `${{ github.sha }}`
           commit-message: 'chore: sync from wendy-project-template ${{ github.sha }}'
           base: main
