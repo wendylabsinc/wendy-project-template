@@ -15,7 +15,7 @@ jobs:
       - name: Find repos with wendy-template.yml
         id: discover
         env:
-          GH_TOKEN: ${{ secrets.WENDY_TEMPLATE_SYNC_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           ORG="wendylabsinc"
