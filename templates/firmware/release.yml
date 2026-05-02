@@ -24,13 +24,13 @@ jobs:
       - name: Build firmware
         shell: bash
         run: |
-          . $IDF_PATH/export.sh
+          . "$IDF_PATH/export.sh"
           idf.py set-target ${{ matrix.target }}
           idf.py build
       - name: Create merged binary
         shell: bash
         run: |
-          . $IDF_PATH/export.sh
+          . "$IDF_PATH/export.sh"
           cd build
           esptool.py --chip ${{ matrix.target }} merge_bin \
             -o firmware_${{ matrix.target }}.bin \
