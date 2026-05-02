@@ -153,6 +153,7 @@ case "$TYPE" in
     python)   apply_python   ;;
     rust)     apply_rust     ;;
     firmware) apply_firmware ;;
+    no-language) ;;
 esac
 
 echo "Done."
