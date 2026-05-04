@@ -167,7 +167,14 @@ jobs:
               content = f.read()
 
           paragraphs = re.split(r'\n\n+', content)
-          summary = next((p.strip() for p in paragraphs if p.strip() and not p.strip().startswith('#')), '_No summary available._')
+          summary = '_No summary available._'
+          for p in paragraphs:
+              text = re.sub(r'(?m)^#+[^\n]*\n?', '', p).strip()
+              if text:
+                  summary = text
+                  break
+
+          summary = re.sub(r'</?(?:details|summary)\b[^>]*>', '', summary, flags=re.IGNORECASE)
 
           with open('comment.md', 'w') as f:
               f.write('## AI Security Review\n\n')
